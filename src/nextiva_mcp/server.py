@@ -82,6 +82,24 @@ def create_mcp_server(settings: Settings) -> FastMCP:
     # correctly behind a reverse proxy or docker network.
     mcp = FastMCP(
         name="nextiva-mcp",
+        instructions=(
+            "Nextiva is a cloud contact-center platform (built on the acquired "
+            "Thrio product) that routes and tracks calls, chats, SMS, and email "
+            "through queues to agents, runs outbound/inbound calling campaigns, "
+            "and stores contacts (customers/leads). This server exposes 5 "
+            "read-only tools mirroring the Thrio data/analytics API: "
+            "nextiva_get_users (agents/technicians), nextiva_get_queues "
+            "(call/chat/email routing queues), nextiva_get_contacts "
+            "(customers/leads), nextiva_get_campaigns (calling campaigns), and "
+            "nextiva_get_workitems_history (aggregated call/chat/SMS/email "
+            "activity totals over a time range). Typical flow: list queues or "
+            "users to understand account structure, then pull "
+            "workitems_history or campaign activity for reporting over a given "
+            "range (e.g. today/lastweek/thismonth). All tools are read-only; "
+            "there are no write/delete tools. Pagination uses a `start` offset "
+            "cursor rather than a page number — responses include next/"
+            "previous cursor values to continue."
+        ),
         transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False),
     )
 

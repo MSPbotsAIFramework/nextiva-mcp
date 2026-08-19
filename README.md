@@ -68,9 +68,11 @@ internal login step, not an HTTP-level error from this server.
 ## MCP Endpoint
 
 - `POST /mcp` — MCP protocol (streamable HTTP transport)
-- `GET /health` — health check, returns `{"status": "ok", "service": "nextiva-mcp", "transport": "http"}`
+- `GET /health` — health check, returns `{"status": "ok"}` (pure local probe, does not call the Nextiva/Thrio API)
 
 ## Tool List
+
+All 5 tools are read-only (`readOnlyHint=True`, `idempotentHint=True`); there are no write/delete tools.
 
 | Tool | 功能 | 参数 |
 |---|---|---|
@@ -80,7 +82,27 @@ internal login step, not an HTTP-level error from this server.
 | `nextiva_get_queues` | 列出呼叫/聊天/邮件队列 | `start`（可选） |
 | `nextiva_get_workitems_history` | 获取通话/聊天/短信/邮件工作项的历史活动及汇总统计 | `range_type`（可选，默认 `lastweek`） |
 
-Responses are the vendor's JSON, pretty-printed, returned as-is.
+Per-parameter documentation lives on each tool's parameter schema (visible via `tools/list`), not in this table — this table is a quick-reference only and parameter names here are kept in sync with the code.
+
+Successful responses are the vendor's JSON, compactly serialized (no
+pretty-printing, `ensure_ascii=False`) and capped at ~20,000 characters —
+an oversized list response is truncated with `truncated`/`original_count`
+markers rather than returned in full. There is no vendor-documented
+`limit`/page-size parameter for these endpoints (pagination is a `start`
+offset only, see Known Gaps below), so there is nothing to clamp beyond
+this automatic character cap.
+
+Errors are returned as a JSON error envelope (not an exception/HTTP
+error), e.g.:
+```json
+{"error": {"code": "upstream_error", "message": "...", "retryable": true}}
+```
+`code` is one of `not_configured` / `unauthorized` / `not_found` /
+`invalid_argument` / `rate_limited` / `upstream_error`, mapped from the
+Thrio API's HTTP status code (see `error_envelope`/`NextivaError.to_envelope`
+in `api_client.py`). Outbound calls use a 5s connect / 30s read timeout,
+and retry up to 3 times with capped exponential backoff on `429`/5xx
+responses (respecting `Retry-After`).
 
 ## 测试示例
 
