@@ -109,12 +109,12 @@ Since there is no session to preserve, this server re-authenticates fresh
 on every single tool call — nothing is cached or persisted across MCP
 requests.
 
-### HEADER 授权参数说明
+### HEADER authentication parameters
 
-| Header | 类型 | 是否必填 | 默认值 | 枚举值 | 字段描述 | Example |
+| Header | Type | Required | Default | Allowed values | Description | Example |
 |---|---|---|---|---|---|---|
-| `X-Nextiva-Username` | string | 是 | 无 | 无 | Thrio/Nextiva 账号用户名 | `admin@example.com` |
-| `X-Nextiva-Password` | string | 是 | 无 | 无 | 对应密码 | `••••••••` |
+| `X-Nextiva-Username` | string | Yes | None | None | Thrio/Nextiva account username | `admin@example.com` |
+| `X-Nextiva-Password` | string | Yes | None | None | The corresponding password | `••••••••` |
 
 Missing either header returns `401`:
 ```json
@@ -131,11 +131,11 @@ internal login step, not an HTTP-level error from this server.
 
 ## Environment Variables
 
-| Variable | 类型 | 是否必填 | 默认值 | 说明 |
+| Variable | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `MCP_HTTP_PORT` | int | 否 | `8080` | HTTP 监听端口 |
-| `MCP_HTTP_HOST` | string | 否 | `0.0.0.0` | HTTP 监听地址 |
-| `NEXTIVA_AUTH_URL` | string | 否 | `https://login.thrio.com/provider/token-with-authorities` | 登录换 token/location 的固定入口地址 |
+| `MCP_HTTP_PORT` | int | No | `8080` | HTTP listen port |
+| `MCP_HTTP_HOST` | string | No | `0.0.0.0` | HTTP listen address |
+| `NEXTIVA_AUTH_URL` | string | No | `https://login.thrio.com/provider/token-with-authorities` | Fixed entry URL for logging in to obtain the token/location |
 
 ## MCP Endpoint
 
@@ -146,13 +146,13 @@ internal login step, not an HTTP-level error from this server.
 
 All 5 tools are read-only (`readOnlyHint=True`, `idempotentHint=True`); there are no write/delete tools.
 
-| Tool | 功能 | 参数 |
+| Tool | Description | Parameters |
 |---|---|---|
-| `nextiva_get_users` | 列出账号下所有用户（坐席/技术员） | `start`（可选，分页偏移量） |
-| `nextiva_get_campaigns` | 列出呼叫营销活动（campaign） | `range_type`（可选，默认 `lastweek`），`start`（可选） |
-| `nextiva_get_contacts` | 列出联系人（客户/线索） | `start`（可选） |
-| `nextiva_get_queues` | 列出呼叫/聊天/邮件队列 | `start`（可选） |
-| `nextiva_get_workitems_history` | 获取通话/聊天/短信/邮件工作项的历史活动及汇总统计 | `range_type`（可选，默认 `lastweek`） |
+| `nextiva_get_users` | List all users under the account (agents/technicians) | `start` (optional, pagination offset) |
+| `nextiva_get_campaigns` | List call marketing campaigns | `range_type` (optional, default `lastweek`), `start` (optional) |
+| `nextiva_get_contacts` | List contacts (customers/leads) | `start`(optional) |
+| `nextiva_get_queues` | List call/chat/email queues | `start`(optional) |
+| `nextiva_get_workitems_history` | Get historical activity and summary statistics for call/chat/SMS/email work items | `range_type` (optional, default `lastweek`) |
 
 Per-parameter documentation lives on each tool's parameter schema (visible via `tools/list`), not in this table — this table is a quick-reference only and parameter names here are kept in sync with the code.
 
@@ -176,7 +176,7 @@ in `api_client.py`). Outbound calls use a 5s connect / 30s read timeout,
 and retry up to 3 times with capped exponential backoff on `429`/5xx
 responses (respecting `Retry-After`).
 
-## 测试示例
+## Test Example
 
 ```bash
 # Health check
